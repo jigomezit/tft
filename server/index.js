@@ -37,12 +37,11 @@ app.get("/api/riot/*", async (req, res) => {
 });
 
 // ── Servir React en producción ────────────────────────────────────────────────
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../client/build")));
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../client/build/index.html"));
-  });
-}
+const buildPath = path.join(__dirname, "../client/build");
+app.use(express.static(buildPath));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(buildPath, "index.html"));
+});
 
 app.listen(PORT, () => {
   console.log(`✅ TFT Coach server corriendo en puerto ${PORT}`);

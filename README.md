@@ -27,11 +27,12 @@ git push -u origin main
 
 1. Ir a [render.com](https://render.com) → **New** → **Web Service**
 2. Conectar tu repo de GitHub
-3. Configurar:
+3. Configurar **exactamente** así:
    - **Name:** `tft-coach`
    - **Environment:** `Node`
+   - **Root Directory:** *(dejar vacío)*
    - **Build Command:** `npm install && npm run build`
-   - **Start Command:** `npm start`
+   - **Start Command:** `node server/index.js`
 
 ### 3. Variables de entorno en Render
 
@@ -53,18 +54,27 @@ Render hace deploy automático en cada push a `main`. ✅
 ## Desarrollo local
 
 ```bash
-# Instalar dependencias
+# Instalar dependencias del servidor
 npm install
-cd client && npm install && cd ..
 
-# Terminal 1 — Backend (puerto 3001)
-npm run dev
+# Buildear React
+npm run build
 
-# Terminal 2 — Frontend (puerto 3000)
-cd client && npm start
+# Correr (sirve frontend + API en el mismo puerto)
+npm start
 ```
 
-La app estará en `http://localhost:3000`
+La app estará en `http://localhost:3001`
+
+O con hot-reload:
+
+```bash
+# Terminal 1
+npm run dev
+
+# Terminal 2
+cd client && npm start
+```
 
 ---
 
@@ -73,15 +83,20 @@ La app estará en `http://localhost:3000`
 ```
 tft-coach/
 ├── server/
-│   └── index.js          ← Express proxy para Riot API
+│   └── index.js      ← Express: proxy Riot API + sirve React build
 ├── client/
 │   ├── public/
 │   │   └── index.html
 │   └── src/
 │       ├── index.js
-│       └── App.js        ← React app completa
-├── package.json          ← Scripts de build y start
+│       └── App.js    ← React app completa
+├── package.json
 └── .gitignore
 ```
 
-El frontend llama a `/api/riot/*` que el backend proxea a `api.riotgames.com` con la API key. **Sin CORS, sin proxies externos.**
+### Por qué no hay CORS
+
+```
+Browser  →  /api/riot/la2.api.riotgames.com/...  (mismo origen)
+         →  Express  →  api.riotgames.com  (con X-Riot-Token header)
+```
